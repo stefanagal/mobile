@@ -2,7 +2,9 @@ Smogon Team App
 
 The application is designed to manage Smogon Pokemon teams in order to easily create any kind of team, keep statistics of all your teams and compare them. It will allow you to introduce a pokemon with custom stats and moves, give it a role and add it to any team. For every team, you should be able to track the win-loss percentage against any kind of play style, as well as the componence of the teams. The login is done with a username and an email account and all your progress is stored both locally and in a remote location.
 
-You cannot use the app without being logged in, so at first the app should display a login form (username and password) and a button for sign in. This will open another form requiring a new username, a password (two times) and an email address. After a sign in request, the screen goes back to the login page.
+You cannot use the app without being logged in, so at first the app should display a login form (username and password) and a button for sign in. This will open another form requiring a new username, a password (two times), an email address and a text box for the admin password. A user will be signed in as admin if the password in correct and as a regular user otherwise. After a sign in request, the screen goes back to the login page.
+
+There are two types of users, the regular user can only see and edit their own pokemon and teams. The admin can see all the pokemon and teams and has the right to delete any pokemon and team entry.
 
 The app itself is structured in three screens. 
 
