@@ -30,7 +30,7 @@ export default class DetailScreen extends React.Component {
         newArray[params.rowID].name = this.state.name;
         newArray[params.rowID].type = this.state.type;
         newArray[params.rowID].role = this.state.role;
-        Linking.openURL('mailto:teopaval@gmail.com?subject=activity_log&body=' + this.state.name)
+        Linking.openURL('mailto:galstefana@gmail.com?subject=activity_log&body=' + this.state.name)
     }
 
     render() {
