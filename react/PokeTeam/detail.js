@@ -1,6 +1,23 @@
 import React from 'react';
-import {Text, View, Button, StyleSheet, TextInput, Linking} from 'react-native';
+import {Text, View, Button, StyleSheet, TextInput, Linking, Picker, Alert} from 'react-native';
 
+import { Database } from 'react-native-database';
+import { Settings } from 'react-native-database';
+
+class Pokemon {};
+Pokemon.schema = {
+  name: 'Pokemon',
+  primaryKey: 'id',
+  properties: {
+    id: { type: 'int' },
+    name: { type: 'string' },
+    role: { type: 'string' },
+    type: { type: 'string' },
+  },
+};
+const schema = { schema: [Pokemon], schemaVersion: 1 };
+const database = new Database(schema);
+const settings = new Settings(database);
 
 
 export default class DetailScreen extends React.Component {
@@ -8,6 +25,7 @@ export default class DetailScreen extends React.Component {
         super(props)
         const {params} = this.props.navigation.state;
         this.state = {
+            id   : params.datasource._dataBlob.s1[params.rowID].id,
             name : params.datasource._dataBlob.s1[params.rowID].name, 
             type : params.datasource._dataBlob.s1[params.rowID].type,
             role : params.datasource._dataBlob.s1[params.rowID].role,
@@ -16,21 +34,51 @@ export default class DetailScreen extends React.Component {
 
     _onPressSave(){
         const {params} = this.props.navigation.state;
-        var newArray= [];
-        newArray = params.datasource._dataBlob.s1.slice()
-        newArray[params.rowID].name = this.state.name;
-        newArray[params.rowID].type = this.state.type;
-        newArray[params.rowID].role = this.state.role;
+        database.write(() => {
+            var newArray= [];
+            newArray = params.datasource._dataBlob.s1.slice()
+            newArray[params.rowID].name = this.state.name;
+            newArray[params.rowID].type = this.state.type;
+            newArray[params.rowID].role = this.state.role;
+        })
+        this.props.navigation.navigate('Home', {})
+    }
+
+    _onPressDelete(){
+        const {params} = this.props.navigation.state;
+        Alert.alert(
+            'Warning',
+            'Are you sure you want to delete this?',
+            [
+              {text: 'Yes', onPress: () =>
+               {database.write(() => {
+                let stuff = database.objects('Pokemon');
+                let pokemon = stuff.filtered('id=' + this.state.id);
+                console.log("State id: " + this.state.id);
+                console.log("Pokemon result: " + JSON.stringify(pokemon[0], null, '\t'));
+                //var newArray= [];
+                //newArray = params.datasource._dataBlob.s1.slice()
+                database.delete("Pokemon", pokemon);
+                })
+                this.props.navigation.navigate('Home', {})
+             }},
+              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            ],
+            { cancelable: true }
+          )
+        
     }
 
     _onPressShare(){
         const {params} = this.props.navigation.state;
+        database.write(() => {
         var newArray= [];
         newArray = params.datasource._dataBlob.s1.slice()
         newArray[params.rowID].name = this.state.name;
         newArray[params.rowID].type = this.state.type;
         newArray[params.rowID].role = this.state.role;
-        Linking.openURL('mailto:galstefana@gmail.com?subject=activity_log&body=' + this.state.name)
+        Linking.openURL('mailto:galstefana@gmail.com?subject=activity_log&body=' + this.state.name + this.state.shareMessage)
+        })
     }
 
     render() {
@@ -65,6 +113,13 @@ export default class DetailScreen extends React.Component {
                 
                 <Button onPress = {()=>this._onPressSave()} title = "save"/>
                 <Button onPress = {()=>this._onPressShare()} title = "share"/>
+                <Button onPress = {()=>this._onPressDelete()} title = "delete"/>
+                <Picker
+                    selectedValue={this.state.shareMessage}
+                    onValueChange={(itemValue, itemIndex) => this.setState({shareMessage: itemValue})}>
+                    <Picker.Item label="Battle" value="battle" />
+                    <Picker.Item label="Trial" value="trial" />
+                </Picker>
             </View>
         );
     }

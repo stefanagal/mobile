@@ -1,18 +1,30 @@
 package com.example.vladl.myapplication;
 
-/**
- * Created by vladl on 09/11/2017.
- */
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 
+@Entity(indices={@Index("id")})
 public class Pokemon {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     String name;
     String type;
     String role;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public Pokemon(String name, String type, String role){
         this.name = name;
         this.role = role;
         this.type = type;
+
     }
 
     public String getName() {

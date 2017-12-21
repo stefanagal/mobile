@@ -18,6 +18,8 @@ import {TabNavigator} from "react-navigation";
 
 import ListScreen from './pokemonlist.js';
 import DetailScreen from './detail.js';
+import CreateScreen from './create.js';
+import BarChartColumnBasic from './BarChartColumnBasic.js';
 
 const MainScreenNavigator = TabNavigator({
   List: {screen: ListScreen},
@@ -34,6 +36,10 @@ const SimpleApp = StackNavigator({
   Details: {
     screen:DetailScreen
   },
+  Create: {
+    screen:CreateScreen
+  },
+  BarChartColumnBasic: { screen: BarChartColumnBasic },
   
 });
 
