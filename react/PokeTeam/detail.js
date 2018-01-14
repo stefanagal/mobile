@@ -1,7 +1,8 @@
 import React from 'react';
-import {Text, View, Button, StyleSheet, TextInput, Linking, Picker, Alert} from 'react-native';
+import {Text, View, Button, StyleSheet, TextInput, Linking, Picker, Alert, AsyncStorage} from 'react-native';
 
 import { Database } from 'react-native-database';
+import PokemonRestApi from './restapi.js';
 import { Settings } from 'react-native-database';
 
 class Pokemon {};
@@ -18,6 +19,7 @@ Pokemon.schema = {
 const schema = { schema: [Pokemon], schemaVersion: 1 };
 const database = new Database(schema);
 const settings = new Settings(database);
+const api = new PokemonRestApi();
 
 
 export default class DetailScreen extends React.Component {
@@ -41,31 +43,56 @@ export default class DetailScreen extends React.Component {
             newArray[params.rowID].type = this.state.type;
             newArray[params.rowID].role = this.state.role;
         })
-        this.props.navigation.navigate('Home', {})
+        jsonString = JSON.stringify({
+            id: this.state.id,
+            name:this.state.name, 
+            type:this.state.type, 
+            role: this.state.role
+        })
+        console.log("nu-mi place pula");
+        console.log(jsonString);
+        api.updatePokemon(jsonString, this.state.id);
+        this.props.navigation.navigate('List', {})
     }
 
-    _onPressDelete(){
+    async _onPressDelete(){
         const {params} = this.props.navigation.state;
-        Alert.alert(
-            'Warning',
-            'Are you sure you want to delete this?',
-            [
-              {text: 'Yes', onPress: () =>
-               {database.write(() => {
-                let stuff = database.objects('Pokemon');
-                let pokemon = stuff.filtered('id=' + this.state.id);
-                console.log("State id: " + this.state.id);
-                console.log("Pokemon result: " + JSON.stringify(pokemon[0], null, '\t'));
-                //var newArray= [];
-                //newArray = params.datasource._dataBlob.s1.slice()
-                database.delete("Pokemon", pokemon);
-                })
-                this.props.navigation.navigate('Home', {})
-             }},
-              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-            ],
-            { cancelable: true }
-          )
+        console.log("DELETEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+        const rights = await AsyncStorage.getItem("rank");
+        if(rights == "regular")
+        {
+            Alert.alert('Warning',
+                        'You do not have the permission to do that',
+                    [
+                        
+                    ])
+        }
+        else
+        {
+            Alert.alert(
+                'Warning',
+                'Are you sure you want to delete this?',
+                [
+                  {text: 'Yes', onPress: () =>
+                   {database.write(() => {
+                    let stuff = database.objects('Pokemon');
+                    let pokemon = stuff.filtered('id=' + this.state.id);
+                    console.log("State id: " + this.state.id);
+                    console.log("Pokemon result: " + JSON.stringify(pokemon[0], null, '\t'));
+                    //var newArray= [];
+                    //newArray = params.datasource._dataBlob.s1.slice()
+                    database.delete("Pokemon", pokemon);
+                    })
+                    
+                    api.deletePokemon(this.state.id);
+                    this.props.navigation.navigate('List', {})
+                 }},
+                  {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                ],
+                { cancelable: true }
+              )
+        }
+        
         
     }
 

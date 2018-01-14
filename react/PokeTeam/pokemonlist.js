@@ -13,10 +13,13 @@ import {
 import { Database } from 'react-native-database';
 import { Settings } from 'react-native-database';
 
+import PokemonRestApi from './restapi.js';
+
 const database_name = "poketeam.db";
 const database_version = "1.0";
 const database_displayname = "PokeTeam Database";
 const database_size = 200000;
+const api = new PokemonRestApi();
 let db;
 
 var DomParser = require('xmldom').DOMParser;
@@ -73,14 +76,18 @@ export const rows = [
 class ListScreen extends React.Component {
   constructor(props){
     super(props);
+
     this.state = {
       progress: [],
       dataSource: ds.cloneWithRows(database.objects('Pokemon')),
+      loading: false
     };
+    
 
-    console.log(JSON.stringify(this.state.dataSource, null, '\t'));
+    
+    //console.log(JSON.stringify(this.state.dataSource, null, '\t'));
     //this.state.dataSource = this.state.dataSource.bind(this);
-
+    
   }
 
   errorCB(err) {
@@ -107,23 +114,51 @@ class ListScreen extends React.Component {
     
   }
 
+  startLoading(){
+    return Promise.all(() => {this.loadAndQueryDB()});
+  }
+
   loadAndQueryDB() {
     
-    /*
+    
     console.log("starting load");
+
     
     database.write(() => {
       database.deleteAll(); 
       
-      database.create('Pokemon', 
-      {
-        id:1,
-        name:'bulbasaur', 
-        type:'grass/poison', 
-        //moves:['tackle','tail whip','leech seed', 'poison powder'],
-        role: 'stall',
-      })});*/
+    });
+    
+      api.getPokemon()
+      .then(data => {
+        data.map(element => 
+          {           
+            database.write(() => {
+              database.create('Pokemon',
+            {
+              id: element["id"],
+              name: element["name"],
+              type: element["type"],
+              role: element["role"]
+            }
+            )
+          })});
+        })
+      .then(data => {
+      this.setState({loading: false })
+    });
+    
+
+
   }
+
+  componentDidMount(){
+    this.setState({loading: true })
+    //this.state.dataSource = ds.cloneWithRows(database.objects('Pokemon'))
+    this.loadAndQueryDB();
+
+  }
+
 
   renderProgressEntry(entry) {
     return (<View style={styles.container}>
@@ -139,7 +174,15 @@ class ListScreen extends React.Component {
         row1 !== row2;
       }
     });
-    console.log(JSON.stringify(database.objects('Pokemon'), null, '\t'));
+    this.startLoading().then(() => {
+      
+    })
+    if(this.state.loading)
+    {
+    return (<View>
+      <Text>Loading</Text>
+    </View>);
+    }
     return (
       <View style={styles.container}>
         <View>
@@ -152,7 +195,7 @@ class ListScreen extends React.Component {
           />
           
         </View>
-      	<ListView
+        <ListView
           enableEmptySections={true}
           dataSource={this.state.dataSource}
           
@@ -167,7 +210,7 @@ class ListScreen extends React.Component {
             <View key={rowID} style={{height:1, backgroundColor: 'lightgray'}}/>
           }
           
-       	/>
+         />
          
       </View>
     );

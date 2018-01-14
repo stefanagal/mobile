@@ -1,6 +1,10 @@
 import React from 'react';
 import {Text, View, Button, StyleSheet, TextInput, Linking} from 'react-native';
 
+import PushNotification from './notification.js';
+
+import PokemonRestApi from './restapi.js';
+
 import { Database } from 'react-native-database';
 import { Settings } from 'react-native-database';
 
@@ -45,8 +49,18 @@ export default class CreateScreen extends React.Component {
               type:this.state.type, 
               role: this.state.role,
             })
+            const api = new PokemonRestApi();
+            jsonString = JSON.stringify({
+                id: lastid + 1,
+                name:this.state.name, 
+                type:this.state.type, 
+                role: this.state.role
+            })
+            console.log("imiplacepula");
+            console.log(jsonString);
+            api.addPokemon(jsonString);
         })
-        this.props.navigation.navigate('Home', {})
+        this.props.navigation.navigate('List', {})
     }
 
     

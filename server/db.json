@@ -1,0 +1,30 @@
+{
+  "pokemon": [
+    {
+      "id": 1,
+      "name": "bulbasaur",
+      "type": "grass/poison",
+      "role": "stall"
+    },
+    {
+      "id": 2,
+      "name": "squirtle",
+      "type": "water",
+      "role": "special attacker"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin",
+      "rank": "admin"
+    },
+    {
+      "id": 2,
+      "username": "notadmin",
+      "password": "notadmin",
+      "rank": "regular"
+    }
+  ]
+}
