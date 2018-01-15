@@ -9,11 +9,18 @@ import android.icu.util.Calendar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarData;
@@ -22,17 +29,81 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+
 public class DetailsActivity extends AppCompatActivity {
+    private PokemonDatabase database;
+    String baseUrl = "http://10.0.2.2:3000/";
+    String url;
+    RequestQueue requestQueue;
+
+    public void updatePokemon(int id, String name, String type, String role)
+    {
+        database = PokemonDatabase.getDatabase(getApplicationContext());
+        this.url = this.baseUrl + "pokemon/" + Integer.toString(id);
+        String jsonBody = "{\"id\":" + Integer.toString(id) + ",\"name\":\"" + name + "\",\"type\":\"" + type + "\",\"role\":\""+role+"\"}";
+        Log.v("dumnezocumila", ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + jsonBody);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject = new JSONObject(jsonBody);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.v("URL", "------------------------------------" + url);
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.PUT, url,jsonObject,
+                new Response.Listener<JSONArray>(){
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("ERROR", "Naspa");
+                    }
+                }
+        );
+        requestQueue.add(arrayRequest);
+    }
+
+    public void deletePokemon(int id)
+    {
+        database = PokemonDatabase.getDatabase(getApplicationContext());
+        this.url = this.baseUrl + "pokemon/" + Integer.toString(id);
+        Log.v("URL", "------------------------------------" + url);
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.DELETE, url,
+                new Response.Listener<JSONArray>(){
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("ERROR", "Naspa");
+                    }
+                }
+        );
+        requestQueue.add(arrayRequest);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final PokemonDatabase database = PokemonDatabase.getDatabase(getApplicationContext());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+
+        database = PokemonDatabase.getDatabase(getApplicationContext());
+
+        requestQueue = Volley.newRequestQueue(this);
 
         final int index = getIntent().getIntExtra("index", -1);
         final int pokemonId = database.PokemonDao().getEntries().get(index).getId();
@@ -50,6 +121,7 @@ public class DetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Pokemon crtPokemon = new Pokemon(pokemonName.getText().toString(), pokemonType.getText().toString(),pokemonRole.getText().toString());
                 crtPokemon.setId(pokemonId);
+                updatePokemon(index+1, crtPokemon.getName(), crtPokemon.getType(), crtPokemon.getRole());
                 database.PokemonDao().update(crtPokemon);
                 finish();
             }
@@ -71,6 +143,7 @@ public class DetailsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK button
                         Pokemon crtPokemon = database.PokemonDao().getEntries().get(index);
+                        deletePokemon(index + 1);
                         database.PokemonDao().delete(crtPokemon);
                         finish();
                     }

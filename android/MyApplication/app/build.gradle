@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.example.vladl.myapplication"
-        minSdkVersion 24
-        targetSdkVersion 25
+        minSdkVersion 26
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -32,4 +32,5 @@ dependencies {
     annotationProcessor 'android.arch.lifecycle:compiler:1.0.0-rc1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0-rc1'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    compile 'com.mcxiaoke.volley:library:1.0.19'
 }

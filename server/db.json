@@ -11,6 +11,18 @@
       "name": "squirtle",
       "type": "water",
       "role": "special attacker"
+    },
+    {
+      "id": 3,
+      "name": "b",
+      "type": "b",
+      "role": "b"
+    },
+    {
+      "id": 4,
+      "name": "c",
+      "type": "c",
+      "role": "c"
     }
   ],
   "users": [

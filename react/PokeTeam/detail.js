@@ -49,7 +49,6 @@ export default class DetailScreen extends React.Component {
             type:this.state.type, 
             role: this.state.role
         })
-        console.log("nu-mi place pula");
         console.log(jsonString);
         api.updatePokemon(jsonString, this.state.id);
         this.props.navigation.navigate('List', {})
